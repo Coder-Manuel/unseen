@@ -1,8 +1,10 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:unseen/config/env.dart';
 import 'package:unseen/core/bindings/initial_binding.dart';
 import 'package:unseen/core/services/storage_service/storage.service.dart';
+import 'package:unseen/firebase_options.dart';
 
 import 'services/analytics_service/analytics_service.dart';
 import 'services/monitor_service/monitor.service.dart';
@@ -16,11 +18,9 @@ class Initializer {
   static Future<void> init() async {
     WidgetsFlutterBinding.ensureInitialized();
 
-    // try {
-    //   await Firebase.initializeApp(
-    //     options: DefaultFirebaseOptions.currentPlatform,
-    //   );
-    // } catch (_) {}
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
 
     Env.init();
     await MonitorService.init();
