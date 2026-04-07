@@ -3,129 +3,151 @@ import 'package:get/get.dart';
 import 'package:unseen/config/colors.dart';
 import 'package:unseen/core/utils/size.util.dart';
 import 'package:unseen/modules/auth/presentation/controllers/login_controller.dart';
+import 'package:unseen/modules/auth/presentation/pages/signup_page.dart';
+import 'package:unseen/modules/auth/presentation/widgets/auth_widgets.dart';
 
 class LoginPage extends GetView<LoginController> {
-  static const String route = '/login_page';
+  static const String route = '/login';
 
   const LoginPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     final formKey = GlobalKey<FormState>();
+
     return Scaffold(
-      appBar: AppBar(),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15),
-        child: Form(
-          key: formKey,
-          child: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(15),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(18),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Form(
+            key: formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                80.verticalSpace,
+                const Text(
+                  'UnSeen',
+                  style: TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 48,
+                    fontWeight: FontWeight.bold,
+                    fontStyle: FontStyle.italic,
+                  ),
                 ),
-                child: Image.asset('assets/images/logo_type.png', height: 50),
-              ),
-              15.verticalSpace,
-              Text(
-                'Let’s get you started',
-                style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
-              ),
-              40.verticalSpace,
-              Row(
-                children: [
-                  Text(
-                    'Email',
-                    style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
+                8.verticalSpace,
+                const Text(
+                  'See anywhere. Know everything.',
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 15,
                   ),
-                ],
-              ),
-              6.verticalSpace,
-              // AppFormField(
-              //   hint: 'john@example.com',
-              //   controller: controller.emailCTRL,
-              //   validator: (v) {
-              //     if (v?.isValidEmail == true) return null;
-              //     return 'Email is invalid';
-              //   },
-              // ),
-              20.verticalSpace,
-              Row(
-                children: [
-                  Text(
-                    'Password',
-                    style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
-                  ),
-                ],
-              ),
-              6.verticalSpace,
-              // Obx(() {
-              //   return AppFormField(
-              //     hint: 'Min 8 Characters',
-              //     controller: controller.passwordCTRL,
-              //     obscureText: controller.obscurePass.value,
-              //     suffix: GestureDetector(
-              //       onTap: () => controller.toggleObscurePass(),
-              //       child: Icon(
-              //         controller.obscurePass.value
-              //             ? Icons.visibility_off
-              //             : Icons.visibility,
-              //       ),
-              //     ),
-              //   );
-              // }),
-              20.verticalSpace,
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(
-                    'Forgot Password?',
-                    style: TextStyle(
-                      color: ColorPallete.primaryColor,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-              40.verticalSpace,
-              TextButton(
-                onPressed: () async => await controller.login(formKey),
-                style: ButtonStyle(
-                  fixedSize: WidgetStateProperty.all(Size(Get.width, 50)),
-                  backgroundColor: WidgetStateProperty.all(
-                    ColorPallete.primaryColor,
-                  ),
-                  foregroundColor: WidgetStateProperty.all(Colors.white),
                 ),
-                child: Text('Login', style: TextStyle(fontSize: 18)),
-              ),
-              const Spacer(),
-              GestureDetector(
-                // onTap: () => Get.toNamed(OnboardingPage.route),
-                child: RichText(
-                  text: TextSpan(
-                    text: "Don't have an account?  ",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 15,
-                      color: Colors.grey[600],
+                64.verticalSpace,
+                AuthTextField(
+                  controller: controller.emailCTRL,
+                  hint: 'Email address',
+                  keyboardType: TextInputType.emailAddress,
+                  prefixIcon: const Icon(
+                    Icons.mail_outline,
+                    color: AppColors.iconColor,
+                    size: 20,
+                  ),
+                  validator: (v) =>
+                      (v == null || v.isEmpty) ? 'Enter your email' : null,
+                ),
+                16.verticalSpace,
+                Obx(
+                  () => AuthTextField(
+                    controller: controller.passwordCTRL,
+                    hint: 'Password',
+                    obscureText: controller.obscurePass.value,
+                    prefixIcon: const Icon(
+                      Icons.lock_outline,
+                      color: AppColors.iconColor,
+                      size: 20,
                     ),
-                    children: [
-                      TextSpan(
-                        text: 'Sign Up',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                          color: ColorPallete.primaryColor,
+                    suffixIcon: GestureDetector(
+                      onTap: controller.toggleObscurePass,
+                      child: Padding(
+                        padding: const EdgeInsets.all(14),
+                        child: Icon(
+                          controller.obscurePass.value
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
+                          color: AppColors.iconColor,
+                          size: 20,
                         ),
                       ),
-                    ],
+                    ),
+                    validator: (v) =>
+                        (v == null || v.isEmpty) ? 'Enter your password' : null,
                   ),
                 ),
-              ),
-              70.verticalSpace,
-            ],
+                40.verticalSpace,
+                PrimaryButton(
+                  label: 'Login',
+                  onPressed: () => controller.login(formKey),
+                ),
+                32.verticalSpace,
+                GestureDetector(
+                  onTap: () {},
+                  child: Container(
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(
+                      color: AppColors.biometricBg,
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: const Icon(
+                      Icons.fingerprint,
+                      color: AppColors.primary,
+                      size: 36,
+                    ),
+                  ),
+                ),
+                10.verticalSpace,
+                const Text(
+                  'BIOMETRIC LOGIN',
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+                28.verticalSpace,
+                const AuthDivider(),
+                28.verticalSpace,
+                GoogleButton(
+                  label: 'Continue with Google',
+                  onPressed: () {},
+                ),
+                40.verticalSpace,
+                GestureDetector(
+                  onTap: () => Get.toNamed(SignupPage.route),
+                  child: RichText(
+                    text: const TextSpan(
+                      text: "Don't have an account? ",
+                      style: TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 15,
+                      ),
+                      children: [
+                        TextSpan(
+                          text: 'Sign Up',
+                          style: TextStyle(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 15,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                40.verticalSpace,
+              ],
+            ),
           ),
         ),
       ),
