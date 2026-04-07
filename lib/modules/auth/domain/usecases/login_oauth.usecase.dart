@@ -6,10 +6,11 @@ import 'package:unseen/core/types/usecase.dart';
 import 'package:unseen/modules/auth/data/models/auth.inputs.dart';
 import 'package:unseen/modules/auth/domain/repository/auth_repository.dart';
 
-class LoginUseCase implements UseCase<User, LoginInput> {
+class LoginOAuthUseCase implements UseCase<User, OAuthInput> {
   final AuthRepository repo;
-  LoginUseCase({required this.repo});
+  LoginOAuthUseCase({required this.repo});
 
   @override
-  FutureOr<RepoResponse<User>> call(LoginInput params) => repo.login(params);
+  FutureOr<RepoResponse<User>> call(OAuthInput params) =>
+      repo.loginWithOAuth(params);
 }

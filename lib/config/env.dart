@@ -8,8 +8,11 @@ abstract class Env {
     return env == Environment.prod;
   }
 
-  // ======== API URL ============
-  static const String baseUrl = String.fromEnvironment('BASE_URL');
+  // ======== Supabase DB Config ============
+  static const String supabaseURL = String.fromEnvironment('SUPABASE_URL');
+  static const String supabaseAnonKey = String.fromEnvironment(
+    'SUPABASE_ANON_KEY',
+  );
 
   static const String mixpanelToken = String.fromEnvironment('MIXPANEL_TOKEN');
   static const String fbIosApiKey = String.fromEnvironment('FB_IOS_API_KEY');
@@ -25,17 +28,6 @@ abstract class Env {
     );
     env = environment;
 
-    switch (environment) {
-      case Environment.staging:
-        {
-          break;
-        }
-      case Environment.prod:
-        {
-          break;
-        }
-    }
-
-    log("BASE URL: $baseUrl");
+    log("==== Env Initialized");
   }
 }

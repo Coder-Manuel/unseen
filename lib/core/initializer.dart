@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:unseen/config/env.dart';
 import 'package:unseen/core/bindings/initial_binding.dart';
 import 'package:unseen/core/services/storage_service/storage.service.dart';
@@ -25,8 +26,11 @@ class Initializer {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-
     Env.init();
+    await Supabase.initialize(
+      url: Env.supabaseURL,
+      anonKey: Env.supabaseAnonKey,
+    );
     await MonitorService.init();
     await StorageService.init();
     await AnalyticsService.init();

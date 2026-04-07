@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:observe_internet_connectivity/observe_internet_connectivity.dart';
@@ -10,11 +12,9 @@ import 'package:unseen/core/utils/navigation_middleware/navigation_controller.da
 class InitialBinding extends Bindings {
   @override
   Future<void> dependencies() async {
-    Get.lazyPut<SupabaseClient>(
-      () => Supabase.instance.client,
-      tag: NetworkDioClientType.supabase.name,
-      fenix: true,
-    );
+    log('===== START SUPABASE');
+    Get.lazyPut<SupabaseClient>(() => Supabase.instance.client, fenix: true);
+    log('===== END SUPABASE');
     Get.lazyPut<Dio>(
       () => NetworkClient.dioClient(baseUrl: ''),
       tag: NetworkDioClientType.global.name,

@@ -9,7 +9,5 @@ class LogoutUseCase implements UseCase<bool, dynamic> {
   LogoutUseCase({required this.repo});
 
   @override
-  FutureOr<RepoResponse<bool>> call([_]) {
-    return repo.logout();
-  }
+  FutureOr<RepoResponse<bool>> call([_]) => repo.logout();
 }

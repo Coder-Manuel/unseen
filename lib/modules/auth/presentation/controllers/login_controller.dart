@@ -13,12 +13,12 @@ class LoginController extends GetxController {
   final passwordCTRL = TextEditingController();
 
   Rx<bool> obscurePass = true.obs;
+  Rx<bool> canLoginWithBiometrics = false.obs;
 
   void toggleObscurePass() => obscurePass.value = !obscurePass.value;
 
   Future<void> login(GlobalKey<FormState> formKey) async {
     if (formKey.currentState?.validate() != true) return;
-    formKey.currentState?.save();
 
     Loader.show(message: 'Login...');
     final response = await loginUsecase(

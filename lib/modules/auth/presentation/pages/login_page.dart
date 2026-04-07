@@ -24,7 +24,7 @@ class LoginPage extends GetView<LoginController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                80.verticalSpace,
+                50.verticalSpace,
                 const Text(
                   'UnSeen',
                   style: TextStyle(
@@ -42,7 +42,7 @@ class LoginPage extends GetView<LoginController> {
                     fontSize: 15,
                   ),
                 ),
-                64.verticalSpace,
+                60.verticalSpace,
                 AuthTextField(
                   controller: controller.emailCTRL,
                   hint: 'Email address',
@@ -52,8 +52,11 @@ class LoginPage extends GetView<LoginController> {
                     color: AppColors.iconColor,
                     size: 20,
                   ),
-                  validator: (v) =>
-                      (v == null || v.isEmpty) ? 'Enter your email' : null,
+                  validator: (v) {
+                    if (v == null || v.isEmpty) return 'Enter your email';
+                    if (!v.isEmail) return 'Enter valid email';
+                    return null;
+                  },
                 ),
                 16.verticalSpace,
                 Obx(
@@ -79,50 +82,47 @@ class LoginPage extends GetView<LoginController> {
                         ),
                       ),
                     ),
-                    validator: (v) =>
-                        (v == null || v.isEmpty) ? 'Enter your password' : null,
+                    validator: (v) {
+                      if (v == null || v.isEmpty) return 'Enter your password';
+                      return null;
+                    },
                   ),
+                ),
+                50.verticalSpace,
+                Row(
+                  children: [
+                    Expanded(
+                      child: PrimaryButton(
+                        label: 'Login',
+                        onPressed: () async => await controller.login(formKey),
+                      ),
+                    ),
+                    if (controller.canLoginWithBiometrics.value) ...[
+                      15.horizontalSpace,
+                      GestureDetector(
+                        onTap: () {},
+                        child: Container(
+                          width: 65,
+                          height: 55,
+                          decoration: BoxDecoration(
+                            color: AppColors.biometricBg,
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                          child: const Icon(
+                            Icons.fingerprint,
+                            color: AppColors.primary,
+                            size: 36,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
                 40.verticalSpace,
-                PrimaryButton(
-                  label: 'Login',
-                  onPressed: () => controller.login(formKey),
-                ),
-                32.verticalSpace,
-                GestureDetector(
-                  onTap: () {},
-                  child: Container(
-                    width: 72,
-                    height: 72,
-                    decoration: BoxDecoration(
-                      color: AppColors.biometricBg,
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    child: const Icon(
-                      Icons.fingerprint,
-                      color: AppColors.primary,
-                      size: 36,
-                    ),
-                  ),
-                ),
-                10.verticalSpace,
-                const Text(
-                  'BIOMETRIC LOGIN',
-                  style: TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-                28.verticalSpace,
                 const AuthDivider(),
-                28.verticalSpace,
-                GoogleButton(
-                  label: 'Continue with Google',
-                  onPressed: () {},
-                ),
                 40.verticalSpace,
+                GoogleButton(label: 'Continue with Google', onPressed: () {}),
+                30.verticalSpace,
                 GestureDetector(
                   onTap: () => Get.toNamed(SignupPage.route),
                   child: RichText(
@@ -145,7 +145,7 @@ class LoginPage extends GetView<LoginController> {
                     ),
                   ),
                 ),
-                40.verticalSpace,
+                10.verticalSpace,
               ],
             ),
           ),

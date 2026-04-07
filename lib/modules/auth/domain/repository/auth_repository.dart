@@ -3,7 +3,25 @@ import 'package:unseen/core/types/repo_reponse.type.dart';
 import 'package:unseen/modules/auth/data/models/auth.inputs.dart';
 
 abstract class AuthRepository {
+  // ─── Login ─────────────────────────────────────────────────────────────────
   Future<RepoResponse<User>> login(LoginInput input);
-  Future<RepoResponse<User>> register(RegisterInput input);
+  Future<RepoResponse<User>> loginWithOAuth(OAuthInput input);
+
+  // ─── Signup ────────────────────────────────────────────────────────────────
+  /// Creates the account and triggers a Supabase email OTP.
+  Future<RepoResponse<User>> signup(SignupInput input);
+
+  // ─── Email verification ────────────────────────────────────────────────────
+  Future<RepoResponse<User>> verifyEmailOtp(VerifyOtpInput input);
+
+  // ─── Phone setup & verification ────────────────────────────────────────────
+  /// Calls Supabase updateUser(phone) which triggers an SMS OTP.
+  Future<RepoResponse<bool>> setupPhone(PhoneSetupInput input);
+  Future<RepoResponse<User>> verifyPhoneOtp(VerifyOtpInput input);
+
+  // ─── Names setup ───────────────────────────────────────────────────────────
+  Future<RepoResponse<bool>> setupNames(NamesInput input);
+
+  // ─── Logout ────────────────────────────────────────────────────────────────
   Future<RepoResponse<bool>> logout();
 }
