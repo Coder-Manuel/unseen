@@ -34,7 +34,7 @@ class LoginController extends GetxController {
         Toast.error(ex.message);
       },
       (data) {
-        Toast.success('Welcome ${data.name}');
+        Toast.success('Welcome ${data.displayName}');
         Get.offAllNamed(HomePage.route);
       },
     );

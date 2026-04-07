@@ -1,0 +1,43 @@
+import 'package:get/get.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:unseen/modules/missions/data/repositories_impl/missions_repository_impl.dart';
+import 'package:unseen/modules/missions/data/sources/remote_missions_datasource.dart';
+import 'package:unseen/modules/missions/domain/repository/missions_repository.dart';
+import 'package:unseen/modules/missions/domain/usecases/get_my_missions.usecase.dart';
+import 'package:unseen/modules/missions/domain/usecases/post_mission.usecase.dart';
+import 'package:unseen/modules/missions/presentation/controllers/finding_scouts_controller.dart';
+import 'package:unseen/modules/missions/presentation/controllers/post_mission_controller.dart';
+
+class MissionsBindings extends Bindings {
+  @override
+  void dependencies() {
+    // ── Data layer ────────────────────────────────────────────────────────────
+    Get.lazyPut<RemoteMissionsDatasource>(
+      () => RemoteMissionsDatasourceImpl(client: Get.find<SupabaseClient>()),
+      fenix: true,
+    );
+    Get.lazyPut<MissionsRepository>(
+      () => MissionsRepositoryImpl(
+        remoteDatasource: Get.find<RemoteMissionsDatasource>(),
+      ),
+      fenix: true,
+    );
+
+    // ── Use cases ─────────────────────────────────────────────────────────────
+    Get.lazyPut<PostMissionUseCase>(
+      () => PostMissionUseCase(repo: Get.find<MissionsRepository>()),
+      fenix: true,
+    );
+    Get.lazyPut<GetMyMissionsUseCase>(
+      () => GetMyMissionsUseCase(repo: Get.find<MissionsRepository>()),
+      fenix: true,
+    );
+
+    // ── Controllers ───────────────────────────────────────────────────────────
+    Get.lazyPut<PostMissionController>(() => PostMissionController(), fenix: true);
+    Get.lazyPut<FindingScoutsController>(
+      () => FindingScoutsController(),
+      fenix: true,
+    );
+  }
+}

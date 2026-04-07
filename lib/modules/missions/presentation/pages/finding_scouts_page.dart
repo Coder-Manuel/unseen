@@ -1,0 +1,452 @@
+import 'dart:math' as math;
+
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:unseen/config/colors.dart';
+import 'package:unseen/modules/missions/domain/entities/scout.entity.dart';
+import 'package:unseen/modules/missions/presentation/controllers/finding_scouts_controller.dart';
+
+class FindingScoutsPage extends GetView<FindingScoutsController> {
+  static const String route = '/finding-scouts';
+
+  const FindingScoutsPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── App bar ────────────────────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+              child: Row(
+                children: [
+                  _CircleBackButton(),
+                  const SizedBox(width: 14),
+                  const Text(
+                    'Finding Scouts',
+                    style: TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 32),
+
+            // ── Radar ──────────────────────────────────────────────────────
+            Center(
+              child: Obx(
+                () => _RadarWidget(
+                  scoutDots: controller.radarDots
+                      .map((d) => Offset(d.x, d.y))
+                      .toList(),
+                ),
+              ),
+            ),
+            const SizedBox(height: 28),
+
+            // ── Scouts notified counter ────────────────────────────────────
+            Center(
+              child: Obx(
+                () => Text(
+                  '${controller.scoutsNotified.value} SCOUTS NOTIFIED',
+                  style: const TextStyle(
+                    color: Color(0xFF22C55E),
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.0,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // ── Scout cards ────────────────────────────────────────────────
+            Expanded(
+              child: Obx(
+                () => _AnimatedScoutList(scouts: controller.scouts.toList()),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Radar widget (StatefulWidget — needs AnimationController) ────────────────
+
+class _RadarWidget extends StatefulWidget {
+  final List<Offset> scoutDots; // normalised [-1,1] coords
+
+  const _RadarWidget({required this.scoutDots});
+
+  @override
+  State<_RadarWidget> createState() => _RadarWidgetState();
+}
+
+class _RadarWidgetState extends State<_RadarWidget>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _sweepCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _sweepCtrl = AnimationController(
+      duration: const Duration(milliseconds: 2800),
+      vsync: this,
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _sweepCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _sweepCtrl,
+      builder: (_, __) => CustomPaint(
+        size: const Size(260, 260),
+        painter: _RadarPainter(
+          sweepProgress: _sweepCtrl.value,
+          scoutDots: widget.scoutDots,
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Radar CustomPainter ──────────────────────────────────────────────────────
+
+class _RadarPainter extends CustomPainter {
+  final double sweepProgress; // 0..1
+  final List<Offset> scoutDots;
+
+  _RadarPainter({required this.sweepProgress, required this.scoutDots});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final maxRadius = size.width / 2;
+    final sweepAngle = sweepProgress * 2 * math.pi;
+
+    // ── Concentric rings ──────────────────────────────────────────────────
+    final ringPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0;
+
+    final ringRadii = [0.28, 0.48, 0.68, 0.88, 1.0];
+    for (int i = 0; i < ringRadii.length; i++) {
+      ringPaint.color = AppColors.primary.withAlpha(
+        (50 - i * 8).clamp(10, 60),
+      );
+      canvas.drawCircle(center, maxRadius * ringRadii[i], ringPaint);
+    }
+
+    // ── Sweep sector (filled arc with gradient opacity) ───────────────────
+    const sweepWidth = math.pi / 2.2; // ~81° wide
+    final sweepStart = sweepAngle - sweepWidth;
+
+    final sweepPath = Path()
+      ..moveTo(center.dx, center.dy)
+      ..arcTo(
+        Rect.fromCircle(center: center, radius: maxRadius),
+        sweepStart,
+        sweepWidth,
+        false,
+      )
+      ..close();
+
+    final sweepPaint = Paint()
+      ..shader = SweepGradient(
+        center: Alignment.center,
+        startAngle: sweepStart,
+        endAngle: sweepAngle,
+        colors: [
+          AppColors.primary.withAlpha(0),
+          AppColors.primary.withAlpha(80),
+        ],
+      ).createShader(Rect.fromCircle(center: center, radius: maxRadius));
+
+    canvas.drawPath(sweepPath, sweepPaint);
+
+    // ── Sweep leading edge line ────────────────────────────────────────────
+    final edgePaint = Paint()
+      ..color = AppColors.primary.withAlpha(180)
+      ..strokeWidth = 1.5
+      ..style = PaintingStyle.stroke;
+
+    canvas.drawLine(
+      center,
+      Offset(
+        center.dx + maxRadius * math.cos(sweepAngle),
+        center.dy + maxRadius * math.sin(sweepAngle),
+      ),
+      edgePaint,
+    );
+
+    // ── Center dot (user — teal) ──────────────────────────────────────────
+    canvas.drawCircle(
+      center,
+      6,
+      Paint()..color = const Color(0xFF22C55E),
+    );
+
+    // ── Scout dots (green, appear once discovered) ─────────────────────────
+    for (final dot in scoutDots) {
+      final pos = Offset(
+        center.dx + dot.dx * maxRadius,
+        center.dy + dot.dy * maxRadius,
+      );
+      // Glow
+      canvas.drawCircle(
+        pos,
+        9,
+        Paint()
+          ..color = const Color(0xFF22C55E).withAlpha(50)
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6),
+      );
+      // Core
+      canvas.drawCircle(
+        pos,
+        5,
+        Paint()..color = const Color(0xFF22C55E),
+      );
+    }
+
+    // ── Amber reference dot (nearby fixed point) ───────────────────────────
+    final refPos = Offset(center.dx + maxRadius * 0.18, center.dy + maxRadius * 0.08);
+    canvas.drawCircle(refPos, 7, Paint()..color = AppColors.primary);
+    canvas.drawCircle(
+      refPos,
+      12,
+      Paint()
+        ..color = AppColors.primary.withAlpha(60)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4),
+    );
+  }
+
+  @override
+  bool shouldRepaint(_RadarPainter oldDelegate) =>
+      oldDelegate.sweepProgress != sweepProgress ||
+      oldDelegate.scoutDots.length != scoutDots.length;
+}
+
+// ─── Animated scout list ──────────────────────────────────────────────────────
+
+class _AnimatedScoutList extends StatefulWidget {
+  final List<ScoutEntity> scouts;
+  const _AnimatedScoutList({required this.scouts});
+
+  @override
+  State<_AnimatedScoutList> createState() => _AnimatedScoutListState();
+}
+
+class _AnimatedScoutListState extends State<_AnimatedScoutList> {
+  final GlobalKey<AnimatedListState> _listKey = GlobalKey();
+  final List<ScoutEntity> _displayed = [];
+
+  @override
+  void didUpdateWidget(_AnimatedScoutList old) {
+    super.didUpdateWidget(old);
+    // Insert any newly added scouts
+    for (int i = _displayed.length; i < widget.scouts.length; i++) {
+      _displayed.add(widget.scouts[i]);
+      _listKey.currentState?.insertItem(
+        i,
+        duration: const Duration(milliseconds: 420),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedList(
+      key: _listKey,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      initialItemCount: 0,
+      itemBuilder: (ctx, index, animation) {
+        return SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(0, 0.4),
+            end: Offset.zero,
+          ).animate(CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOutCubic,
+          )),
+          child: FadeTransition(
+            opacity: animation,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: _ScoutCard(scout: _displayed[index]),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+// ─── Scout card ───────────────────────────────────────────────────────────────
+
+class _ScoutCard extends StatelessWidget {
+  final ScoutEntity scout;
+  const _ScoutCard({required this.scout});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.divider.withAlpha(60), width: 0.5),
+      ),
+      child: Row(
+        children: [
+          // Avatar
+          Container(
+            width: 48,
+            height: 48,
+            decoration: const BoxDecoration(
+              color: Color(0xFF1E2B3D),
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Text(
+                scout.avatarEmoji,
+                style: const TextStyle(fontSize: 24),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+
+          // Name + distance
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  scout.displayName,
+                  style: const TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  '${scout.distanceLabel} · ${scout.totalReviews ?? 0} missions',
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Rating + status
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    scout.rating?.toStringAsFixed(1) ?? '–',
+                    style: const TextStyle(
+                      color: AppColors.primary,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(width: 3),
+                  const Icon(Icons.star, color: AppColors.primary, size: 15),
+                ],
+              ),
+              const SizedBox(height: 6),
+              _StatusBadge(status: scout.scoutStatus),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Status badge ─────────────────────────────────────────────────────────────
+
+class _StatusBadge extends StatelessWidget {
+  final ScoutStatus status;
+  const _StatusBadge({required this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    final (label, bg, fg) = switch (status) {
+      ScoutStatus.enRoute => (
+          'En route',
+          const Color(0xFF14532D),
+          const Color(0xFF22C55E),
+        ),
+      ScoutStatus.accepting => (
+          'Accepting',
+          const Color(0xFF2D1F00),
+          AppColors.primary,
+        ),
+      ScoutStatus.available => (
+          'Available',
+          const Color(0xFF0D2340),
+          const Color(0xFF60A5FA),
+        ),
+    };
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: fg,
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Circle back button ───────────────────────────────────────────────────────
+
+class _CircleBackButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => Get.back(),
+      child: Container(
+        width: 42,
+        height: 42,
+        decoration: const BoxDecoration(
+          color: AppColors.surface,
+          shape: BoxShape.circle,
+        ),
+        child: const Icon(
+          Icons.arrow_back,
+          color: AppColors.textPrimary,
+          size: 20,
+        ),
+      ),
+    );
+  }
+}
