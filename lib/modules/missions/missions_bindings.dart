@@ -6,6 +6,7 @@ import 'package:unseen/modules/missions/data/sources/remote_missions_datasource.
 import 'package:unseen/modules/missions/data/sources/remote_places_datasource.dart';
 import 'package:unseen/modules/missions/domain/repository/missions_repository.dart';
 import 'package:unseen/modules/missions/domain/usecases/get_my_missions.usecase.dart';
+import 'package:unseen/modules/missions/domain/usecases/get_nearby_scouts.usecase.dart';
 import 'package:unseen/modules/missions/domain/usecases/post_mission.usecase.dart';
 import 'package:unseen/modules/missions/presentation/controllers/finding_scouts_controller.dart';
 import 'package:unseen/modules/missions/presentation/controllers/location_picker_controller.dart';
@@ -41,6 +42,10 @@ class MissionsBindings extends Bindings {
     );
     Get.lazyPut<GetMyMissionsUseCase>(
       () => GetMyMissionsUseCase(repo: Get.find<MissionsRepository>()),
+      fenix: true,
+    );
+    Get.lazyPut<GetNearbyScoutsUseCase>(
+      () => GetNearbyScoutsUseCase(repo: Get.find<MissionsRepository>()),
       fenix: true,
     );
 

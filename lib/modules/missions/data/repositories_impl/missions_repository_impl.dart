@@ -2,8 +2,10 @@ import 'package:unseen/core/types/repo_reponse.type.dart';
 import 'package:unseen/core/utils/error_wrapper.dart';
 import 'package:unseen/modules/missions/data/models/mission.inputs.dart';
 import 'package:unseen/modules/missions/data/models/mission.model.dart';
+import 'package:unseen/modules/missions/data/models/nearby_scout.model.dart';
 import 'package:unseen/modules/missions/data/sources/remote_missions_datasource.dart';
 import 'package:unseen/modules/missions/domain/entities/mission.entity.dart';
+import 'package:unseen/modules/missions/domain/entities/nearby_scout.entity.dart';
 import 'package:unseen/modules/missions/domain/repository/missions_repository.dart';
 
 class MissionsRepositoryImpl extends MissionsRepository {
@@ -32,15 +34,37 @@ class MissionsRepositoryImpl extends MissionsRepository {
   Future<RepoResponse<List<MissionEntity>>> getMyMissions() async {
     final response =
         await ErrorWrapper.async<RepoResponse<List<MissionEntity>>>(
-      () async {
-        final data = await remoteDatasource.getMyMissions();
-        return SuccessResponse(data.map(MissionModel.fromMap).toList());
-      },
-      onError: (_) => FailureResponse('Failed to load missions, kindly retry'),
-      library: _library,
-      description: 'while loading missions',
-    );
+          () async {
+            final data = await remoteDatasource.getMyMissions();
+            return SuccessResponse(data.map(MissionModel.fromMap).toList());
+          },
+          onError: (_) =>
+              FailureResponse('Failed to load missions, kindly retry'),
+          library: _library,
+          description: 'while loading missions',
+        );
     return response!;
   }
 
+  @override
+  Future<RepoResponse<List<NearbyScout>>> getNearbyScouts({
+    required double latitude,
+    required double longitude,
+    required double radiusKm,
+  }) async {
+    final response = await ErrorWrapper.async<RepoResponse<List<NearbyScout>>>(
+      () async {
+        final data = await remoteDatasource.getNearbyScouts({
+          'lat': latitude,
+          'lng': longitude,
+          'radius_km': radiusKm,
+        });
+        return SuccessResponse(data.map(NearbyScoutModel.fromMap).toList());
+      },
+      onError: (_) => FailureResponse('Failed to load nearby scouts'),
+      library: _library,
+      description: 'while fetching nearby scouts',
+    );
+    return response!;
+  }
 }

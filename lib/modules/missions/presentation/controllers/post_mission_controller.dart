@@ -80,7 +80,10 @@ class PostMissionController extends GetxController {
 
     response.fold(
       (ex) => Toast.error(ex.message),
-      (_) => Get.toNamed(FindingScoutsPage.route),
+      // Pass the created MissionEntity as a GetX argument so
+      // FindingScoutsController can read the mission id + location
+      // for the nearby-scouts fetch and the Realtime subscription.
+      (mission) => Get.toNamed(FindingScoutsPage.route, arguments: mission),
     );
   }
 

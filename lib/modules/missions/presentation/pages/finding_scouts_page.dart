@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:unseen/config/colors.dart';
-import 'package:unseen/modules/missions/domain/entities/scout.entity.dart';
+import 'package:unseen/modules/missions/domain/entities/nearby_scout.entity.dart';
 import 'package:unseen/modules/missions/presentation/controllers/finding_scouts_controller.dart';
 
 class FindingScoutsPage extends GetView<FindingScoutsController> {
@@ -236,7 +236,7 @@ class _RadarPainter extends CustomPainter {
 // ─── Animated scout list ──────────────────────────────────────────────────────
 
 class _AnimatedScoutList extends StatefulWidget {
-  final List<ScoutEntity> scouts;
+  final List<NearbyScout> scouts;
   const _AnimatedScoutList({required this.scouts});
 
   @override
@@ -245,7 +245,7 @@ class _AnimatedScoutList extends StatefulWidget {
 
 class _AnimatedScoutListState extends State<_AnimatedScoutList> {
   final GlobalKey<AnimatedListState> _listKey = GlobalKey();
-  final List<ScoutEntity> _displayed = [];
+  final List<NearbyScout> _displayed = [];
 
   @override
   void didUpdateWidget(_AnimatedScoutList old) {
@@ -288,7 +288,7 @@ class _AnimatedScoutListState extends State<_AnimatedScoutList> {
 // ─── Scout card ───────────────────────────────────────────────────────────────
 
 class _ScoutCard extends StatelessWidget {
-  final ScoutEntity scout;
+  final NearbyScout scout;
   const _ScoutCard({required this.scout});
 
   @override
@@ -302,21 +302,8 @@ class _ScoutCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // Avatar
-          Container(
-            width: 48,
-            height: 48,
-            decoration: const BoxDecoration(
-              color: Color(0xFF1E2B3D),
-              shape: BoxShape.circle,
-            ),
-            child: Center(
-              child: Text(
-                scout.avatarEmoji,
-                style: const TextStyle(fontSize: 24),
-              ),
-            ),
-          ),
+          // Avatar — initials derived from User.displayName
+          _InitialsAvatar(name: scout.user.displayName),
           const SizedBox(width: 12),
 
           // Name + distance
@@ -325,7 +312,7 @@ class _ScoutCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  scout.displayName,
+                  scout.user.displayName,
                   style: const TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 15,
@@ -334,7 +321,7 @@ class _ScoutCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 3),
                 Text(
-                  '${scout.distanceLabel} · ${scout.totalReviews ?? 0} missions',
+                  '${scout.distanceLabel} · ${scout.user.totalReviews ?? 0} missions',
                   style: const TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 12,
@@ -344,7 +331,7 @@ class _ScoutCard extends StatelessWidget {
             ),
           ),
 
-          // Rating + status
+          // Rating + online badge
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -352,7 +339,7 @@ class _ScoutCard extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    scout.rating?.toStringAsFixed(1) ?? '–',
+                    scout.user.rating?.toStringAsFixed(1) ?? '–',
                     style: const TextStyle(
                       color: AppColors.primary,
                       fontSize: 15,
@@ -364,7 +351,7 @@ class _ScoutCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 6),
-              _StatusBadge(status: scout.scoutStatus),
+              _OnlineBadge(isOnline: scout.user.isOnline ?? false),
             ],
           ),
         ],
@@ -373,41 +360,66 @@ class _ScoutCard extends StatelessWidget {
   }
 }
 
-// ─── Status badge ─────────────────────────────────────────────────────────────
+// ─── Initials avatar ──────────────────────────────────────────────────────────
 
-class _StatusBadge extends StatelessWidget {
-  final ScoutStatus status;
-  const _StatusBadge({required this.status});
+class _InitialsAvatar extends StatelessWidget {
+  final String name;
+  const _InitialsAvatar({required this.name});
+
+  String get _initials {
+    final parts = name.trim().split(' ');
+    if (parts.length >= 2) {
+      return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+    }
+    return name.isNotEmpty ? name[0].toUpperCase() : '?';
+  }
 
   @override
   Widget build(BuildContext context) {
-    final (label, bg, fg) = switch (status) {
-      ScoutStatus.enRoute => (
-        'En route',
-        const Color(0xFF14532D),
-        const Color(0xFF22C55E),
+    return Container(
+      width: 48,
+      height: 48,
+      decoration: const BoxDecoration(
+        color: Color(0xFF1E2B3D),
+        shape: BoxShape.circle,
       ),
-      ScoutStatus.accepting => (
-        'Accepting',
-        const Color(0xFF2D1F00),
-        AppColors.primary,
+      child: Center(
+        child: Text(
+          _initials,
+          style: const TextStyle(
+            color: AppColors.primary,
+            fontSize: 16,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
       ),
-      ScoutStatus.available => (
-        'Available',
-        const Color(0xFF0D2340),
-        const Color(0xFF60A5FA),
-      ),
-    };
+    );
+  }
+}
 
+// ─── Online badge ─────────────────────────────────────────────────────────────
+
+class _OnlineBadge extends StatelessWidget {
+  final bool isOnline;
+  const _OnlineBadge({required this.isOnline});
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: bg,
+        color: isOnline ? const Color(0xFF14532D) : const Color(0xFF1A2535),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
-        label,
-        style: TextStyle(color: fg, fontSize: 11, fontWeight: FontWeight.w700),
+        isOnline ? 'Available' : 'Offline',
+        style: TextStyle(
+          color: isOnline
+              ? const Color(0xFF22C55E)
+              : AppColors.textSecondary,
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+        ),
       ),
     );
   }
