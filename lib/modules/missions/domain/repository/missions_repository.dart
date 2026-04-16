@@ -11,4 +11,10 @@ abstract class MissionsRepository {
     required double longitude,
     required double radiusKm,
   });
+
+  /// Real-time stream of the current user's missions.
+  ///
+  /// Supabase RLS ensures only the authenticated user's rows are delivered.
+  /// Rows are emitted in full on every insert / update / delete.
+  Stream<List<MissionEntity>> watchActiveMissions();
 }

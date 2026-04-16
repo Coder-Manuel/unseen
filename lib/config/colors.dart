@@ -6,6 +6,7 @@ class AppColors {
   static const Color inputBg = Color(0xFF1A2535);
   static const Color biometricBg = Color(0xFF1E2B3D);
   static const Color primary = Color(0xFFD4A520);
+  static const Color green = Color(0xFF3DFF6B);
   static const Color textPrimary = Colors.white;
   static const Color textSecondary = Color(0xFF8896AB);
   static const Color divider = Color(0xFF2A3547);

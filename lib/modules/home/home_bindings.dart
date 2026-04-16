@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:unseen/modules/home/presentation/controllers/home_controller.dart';
+import 'package:unseen/modules/home/presentation/controllers/maps_tab_controller.dart';
 import 'package:unseen/modules/home/presentation/controllers/splash_controller.dart';
 
 class HomeBindings extends Bindings {
@@ -7,5 +8,6 @@ class HomeBindings extends Bindings {
   void dependencies() {
     Get.lazyPut<HomeController>(() => HomeController(), fenix: true);
     Get.lazyPut<SplashController>(() => SplashController(), fenix: true);
+    Get.lazyPut<MapsTabController>(() => MapsTabController(), fenix: true);
   }
 }

@@ -11,7 +11,7 @@ class JoinStreamController extends GetxController {
   JoinStreamController({required JoinStreamUseCase joinStreamUseCase})
     : _joinStreamUseCase = joinStreamUseCase;
 
-  late MissionEntity _mission;
+  late MissionEntity mission;
 
   final _room = Room(
     roomOptions: const RoomOptions(adaptiveStream: true, dynacast: true),
@@ -31,7 +31,7 @@ class JoinStreamController extends GetxController {
   // ── Initialise ────────────────────────────────────────────────────────────
 
   Future<void> initialize(MissionEntity mission) async {
-    _mission = mission;
+    mission = mission;
 
     final result = await _joinStreamUseCase(mission.id!);
 
@@ -40,10 +40,9 @@ class JoinStreamController extends GetxController {
         isConnecting.value = false;
         hasError.value = true;
       },
-      (session) async {
+      (data) async {
         try {
-          // Connect to the LiveKit room as a viewer (no camera/mic publishing).
-          await _room.connect(session.url, session.token);
+          await _room.connect(data.url, data.token);
 
           // Allow WebRTC negotiation to settle, then grab the remote track.
           await Future.delayed(const Duration(milliseconds: 400));

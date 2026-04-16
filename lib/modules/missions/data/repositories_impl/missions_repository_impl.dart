@@ -47,6 +47,23 @@ class MissionsRepositoryImpl extends MissionsRepository {
   }
 
   @override
+  Stream<List<MissionEntity>> watchActiveMissions() {
+    return remoteDatasource.watchActiveMissions().map(
+      (rows) => rows
+          .map(MissionModel.fromMap)
+          .where(
+            (m) => [
+              MissionStatus.open,
+              MissionStatus.accepted,
+              MissionStatus.enroute,
+              MissionStatus.live,
+            ].contains(m.status),
+          )
+          .toList(),
+    );
+  }
+
+  @override
   Future<RepoResponse<List<NearbyScout>>> getNearbyScouts({
     required double latitude,
     required double longitude,
