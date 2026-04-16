@@ -64,10 +64,12 @@ class MissionsTab extends GetView<MissionsTabController> {
             ),
 
             // ── Filter row ────────────────────────────────────────────────
-            Obx(() => _FilterRow(
-                  activeFilter: controller.activeFilter.value,
-                  onFilterChanged: controller.setFilter,
-                )),
+            Obx(
+              () => _FilterRow(
+                activeFilter: controller.activeFilter.value,
+                onFilterChanged: controller.setFilter,
+              ),
+            ),
             const SizedBox(height: 8),
 
             // ── Body ──────────────────────────────────────────────────────
@@ -91,7 +93,13 @@ class MissionsTab extends GetView<MissionsTabController> {
                     padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
                     itemCount: missions.length,
                     separatorBuilder: (_, __) => const SizedBox(height: 14),
-                    itemBuilder: (_, i) => _MissionCard(mission: missions[i]),
+                    itemBuilder: (_, i) => _MissionCard(
+                      mission: missions[i],
+                      hasActiveSession: controller.activeSessions.containsKey(
+                        missions[i].id,
+                      ),
+                      onJoinStream: () => controller.onJoinStream(missions[i]),
+                    ),
                   ),
                 );
               }),
@@ -109,10 +117,7 @@ class _FilterRow extends StatelessWidget {
   final MissionFilter activeFilter;
   final void Function(MissionFilter) onFilterChanged;
 
-  const _FilterRow({
-    required this.activeFilter,
-    required this.onFilterChanged,
-  });
+  const _FilterRow({required this.activeFilter, required this.onFilterChanged});
 
   static const _labels = {
     MissionFilter.all: 'All',
@@ -162,7 +167,14 @@ class _FilterRow extends StatelessWidget {
 
 class _MissionCard extends StatelessWidget {
   final MissionEntity mission;
-  const _MissionCard({required this.mission});
+  final bool hasActiveSession;
+  final VoidCallback onJoinStream;
+
+  const _MissionCard({
+    required this.mission,
+    required this.hasActiveSession,
+    required this.onJoinStream,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -175,10 +187,7 @@ class _MissionCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppColors.divider.withAlpha(40),
-          width: 0.5,
-        ),
+        border: Border.all(color: AppColors.divider.withAlpha(40), width: 0.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -264,6 +273,29 @@ class _MissionCard extends StatelessWidget {
               ),
             ],
           ),
+          if (hasActiveSession || mission.status == MissionStatus.live) ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: onJoinStream,
+                icon: const Icon(Icons.videocam_rounded, size: 16),
+                label: const Text(
+                  'Join Stream',
+                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1D4ED8),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  elevation: 0,
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -281,6 +313,7 @@ class _StatusBadge extends StatelessWidget {
     final (label, color) = switch (status) {
       MissionStatus.live => ('Live', const Color(0xFF22C55E)),
       MissionStatus.accepted => ('Accepted', const Color(0xFF3B82F6)),
+      MissionStatus.enroute => ('EnRoute', const Color(0xFF3B82F6)),
       MissionStatus.open => ('Pending', AppColors.primary),
       MissionStatus.completed => ('Completed', AppColors.textSecondary),
       MissionStatus.cancelled => ('Cancelled', const Color(0xFFEF4444)),

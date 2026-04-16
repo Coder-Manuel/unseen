@@ -1,10 +1,11 @@
 import 'package:unseen/core/entities/base.entity.dart';
 
-enum MissionStatus { open, accepted, live, completed, cancelled }
+enum MissionStatus { open, accepted, enroute, live, completed, cancelled }
 
 class MissionEntity extends BaseEntity {
   final String? clientId;
   final String? scoutId;
+  final String? sessionId;
 
   /// Free-text instructions sent to the scout.
   final String description;
@@ -37,6 +38,7 @@ class MissionEntity extends BaseEntity {
     super.updatedAt,
     this.clientId,
     this.scoutId,
+    this.sessionId,
     required this.description,
     required this.currency,
     required this.price,

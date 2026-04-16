@@ -13,8 +13,6 @@ class RemoteMissionsDatasourceImpl extends RemoteMissionsDatasource {
 
   @override
   Future<Map<String, dynamic>> postMission(Map<String, dynamic> data) {
-    // client_id is NOT sent — the DB trigger set_mission_client_id() assigns
-    // it automatically from auth.uid() and also enforces the client-role guard.
     return client.from('missions').insert(data).select().single();
   }
 
@@ -31,7 +29,6 @@ class RemoteMissionsDatasourceImpl extends RemoteMissionsDatasource {
     return client
         .from('missions')
         .select()
-        // .eq('client_id', client.auth.currentUser?.id ?? '')
         .order('created_at', ascending: false);
   }
 }
