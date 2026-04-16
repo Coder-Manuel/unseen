@@ -69,6 +69,11 @@
     <string>UnSeen uses your location to pin your mission drop point on the map.</string>
     <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
     <string>UnSeen uses your location to pin your mission drop point on the map.</string>
+    <!-- Required for LiveKit live streaming -->
+    <key>NSCameraUsageDescription</key>
+    <string>UnSeen uses your camera to stream live video during active missions.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>UnSeen uses your microphone to capture audio during live mission streams.</string>
     <!-- Google Maps API key -->
     <key>GMSApiKey</key>
     <string>$(GOOGLE_MAPS_API_KEY)</string>
