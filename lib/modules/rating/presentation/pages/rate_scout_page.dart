@@ -3,56 +3,14 @@ import 'package:get/get.dart';
 import 'package:unseen/config/colors.dart';
 import 'package:unseen/core/utils/size.util.dart';
 import 'package:unseen/modules/missions/domain/entities/mission.entity.dart';
+import 'package:unseen/modules/rating/presentation/controllers/rating.controller.dart';
 
 /// "Mission Complete" screen — shown when the room ends.
 ///
 /// Pass the completed [MissionEntity] as `Get.arguments`.
-class RateScoutPage extends StatefulWidget {
+class RateScoutPage extends GetView<RatingController> {
   static const String route = '/rate-scout';
   const RateScoutPage({super.key});
-
-  @override
-  State<RateScoutPage> createState() => _RateScoutPageState();
-}
-
-class _RateScoutPageState extends State<RateScoutPage>
-    with SingleTickerProviderStateMixin {
-  late final MissionEntity _mission;
-  int _selectedStars = 0;
-
-  late final AnimationController _checkCtrl;
-  late final Animation<double> _checkScale;
-
-  @override
-  void initState() {
-    super.initState();
-    _mission = Get.arguments as MissionEntity;
-
-    _checkCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 600),
-    );
-    _checkScale = CurvedAnimation(parent: _checkCtrl, curve: Curves.elasticOut);
-    // Pop the check icon in on entry.
-    _checkCtrl.forward();
-  }
-
-  @override
-  void dispose() {
-    _checkCtrl.dispose();
-    super.dispose();
-  }
-
-  String get _scoutName => _mission.scout?.displayName ?? 'Scout';
-
-  String get _paymentText =>
-      'Payment of ${_mission.currency} ${_mission.price.toStringAsFixed(2)} '
-      'has been released to $_scoutName.';
-
-  void _onBackToHome() {
-    // Pop everything down to the root (home shell).
-    Get.until((route) => route.isFirst);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +25,7 @@ class _RateScoutPageState extends State<RateScoutPage>
 
               // ── Animated checkmark ─────────────────────────────────────
               ScaleTransition(
-                scale: _checkScale,
+                scale: controller.checkScale,
                 child: Container(
                   width: 100,
                   height: 100,
@@ -102,7 +60,7 @@ class _RateScoutPageState extends State<RateScoutPage>
 
               // ── Payment confirmation ───────────────────────────────────
               Text(
-                _paymentText,
+                controller.paymentText,
                 style: const TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 15,
@@ -114,11 +72,13 @@ class _RateScoutPageState extends State<RateScoutPage>
               const Spacer(flex: 1),
 
               // ── Rating card ────────────────────────────────────────────
-              _RatingCard(
-                scoutName: _scoutName,
-                selectedStars: _selectedStars,
-                onStarTapped: (i) => setState(() => _selectedStars = i + 1),
-              ),
+              Obx(() {
+                return _RatingCard(
+                  scoutName: controller.scoutName,
+                  selectedStars: controller.selectedStars.value,
+                  onStarTapped: (i) => controller.selectedStars.value + i,
+                );
+              }),
 
               const Spacer(flex: 2),
 
@@ -126,21 +86,28 @@ class _RateScoutPageState extends State<RateScoutPage>
               SizedBox(
                 width: double.infinity,
                 height: 56,
-                child: ElevatedButton(
-                  onPressed: _onBackToHome,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.black,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(50),
+                child: Obx(() {
+                  return ElevatedButton(
+                    onPressed: controller.createRating,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.black,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                      elevation: 0,
                     ),
-                    elevation: 0,
-                  ),
-                  child: const Text(
-                    'Back to Home',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
-                  ),
-                ),
+                    child: Text(
+                      controller.selectedStars.value > 0
+                          ? 'Rate Scout'
+                          : 'Back to Home',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  );
+                }),
               ),
 
               24.verticalSpace,

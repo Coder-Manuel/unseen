@@ -9,6 +9,7 @@ import 'package:unseen/firebase_options.dart';
 import 'package:unseen/modules/auth/auth_bindings.dart';
 import 'package:unseen/modules/home/home_bindings.dart';
 import 'package:unseen/modules/missions/missions_bindings.dart';
+import 'package:unseen/modules/rating/rating_bindings.dart';
 import 'package:unseen/modules/stream/stream_bindings.dart';
 import 'package:unseen/modules/user/user_bindings.dart';
 
@@ -25,6 +26,7 @@ class Initializer {
     UserBindings().dependencies();
     HomeBindings().dependencies();
     StreamBindings().dependencies();
+    RatingBindings().dependencies();
   }
 
   static Future<void> init() async {

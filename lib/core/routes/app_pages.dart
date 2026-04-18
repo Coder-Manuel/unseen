@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:unseen/modules/auth/auth_routes.dart';
 import 'package:unseen/modules/home/home_routes.dart';
 import 'package:unseen/modules/missions/missions_routes.dart';
+import 'package:unseen/modules/rating/rating_routes.dart';
 import 'package:unseen/modules/stream/stream_routes.dart';
 
 class AppPages {
@@ -11,5 +12,6 @@ class AppPages {
     ...MissionsRoutes().pages,
     ...HomeRoutes().pages,
     ...StreamRoutes().pages,
+    ...RatingRoutes().pages,
   ];
 }

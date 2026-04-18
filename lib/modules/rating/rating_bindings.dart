@@ -6,7 +6,7 @@ import 'package:unseen/modules/rating/domain/repository/rating_repository.dart';
 import 'package:unseen/modules/rating/domain/usecases/create_rating.usecase.dart';
 import 'package:unseen/modules/rating/presentation/controllers/rating.controller.dart';
 
-class StreamBindings extends Bindings {
+class RatingBindings extends Bindings {
   @override
   void dependencies() {
     // ── Data layer ────────────────────────────────────────────────────────────

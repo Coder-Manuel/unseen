@@ -1,10 +1,10 @@
 import 'package:unseen/core/types/repo_reponse.type.dart';
 import 'package:unseen/core/utils/error_wrapper.dart';
+import 'package:unseen/modules/rating/data/models/rating.input.dart';
+import 'package:unseen/modules/rating/data/models/rating.model.dart';
 import 'package:unseen/modules/rating/data/sources/remote_rating_datasource.dart';
+import 'package:unseen/modules/rating/domain/entities/rating.entity.dart';
 import 'package:unseen/modules/rating/domain/repository/rating_repository.dart';
-import 'package:unseen/modules/stream/data/models/rating.input.dart';
-import 'package:unseen/modules/stream/data/models/rating.model.dart';
-import 'package:unseen/modules/stream/domain/entities/rating.entity.dart';
 
 class RatingRepositoryImpl implements RatingRepository {
   final _library = 'Rating Repository';
