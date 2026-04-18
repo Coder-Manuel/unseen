@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:unseen/config/colors.dart';
+import 'package:unseen/core/utils/extensions.dart';
 import 'package:unseen/modules/missions/domain/entities/nearby_scout.entity.dart';
 import 'package:unseen/modules/missions/presentation/controllers/finding_scouts_controller.dart';
 
@@ -321,7 +322,7 @@ class _ScoutCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 3),
                 Text(
-                  '${scout.distanceLabel} · ${scout.user.totalReviews ?? 0} missions',
+                  '${scout.distanceMeters.formatDistance} · ${scout.user.totalReviews ?? 0} missions',
                   style: const TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 12,
@@ -414,9 +415,7 @@ class _OnlineBadge extends StatelessWidget {
       child: Text(
         isOnline ? 'Available' : 'Offline',
         style: TextStyle(
-          color: isOnline
-              ? const Color(0xFF22C55E)
-              : AppColors.textSecondary,
+          color: isOnline ? const Color(0xFF22C55E) : AppColors.textSecondary,
           fontSize: 11,
           fontWeight: FontWeight.w700,
         ),

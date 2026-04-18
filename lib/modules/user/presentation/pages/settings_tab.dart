@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/state_manager.dart';
 import 'package:unseen/config/colors.dart';
+import 'package:unseen/modules/user/presentation/controllers/user_controller.dart';
 
-class SettingsTab extends StatelessWidget {
+class SettingsTab extends GetView<UserController> {
   const SettingsTab({super.key});
 
   @override
@@ -12,8 +14,7 @@ class SettingsTab extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
               child: Row(
                 children: [
                   Container(
@@ -30,11 +31,11 @@ class SettingsTab extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 14),
-                  const Column(
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Scout Agent',
+                        controller.currentUser.value?.fullName ?? 'Client',
                         style: TextStyle(
                           color: AppColors.textPrimary,
                           fontSize: 18,
@@ -43,7 +44,8 @@ class SettingsTab extends StatelessWidget {
                       ),
                       SizedBox(height: 2),
                       Text(
-                        'agent@unseen.io',
+                        controller.currentUser.value?.email ??
+                            'email unavailable',
                         style: TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 13,
@@ -66,11 +68,6 @@ class SettingsTab extends StatelessWidget {
                     onTap: () {},
                   ),
                   _SettingsTile(
-                    icon: Icons.shield_outlined,
-                    title: 'Security',
-                    onTap: () {},
-                  ),
-                  _SettingsTile(
                     icon: Icons.notifications_outlined,
                     title: 'Notifications',
                     trailing: Switch(
@@ -83,20 +80,14 @@ class SettingsTab extends StatelessWidget {
                   ),
                   _SectionHeader(title: 'App'),
                   _SettingsTile(
-                    icon: Icons.dark_mode_outlined,
-                    title: 'Dark Mode',
+                    icon: Icons.fingerprint_rounded,
+                    title: 'Biometrics Login',
                     trailing: Switch(
-                      value: true,
+                      value: false,
                       onChanged: (_) {},
                       activeThumbColor: AppColors.primary,
                       activeTrackColor: AppColors.primary.withAlpha(80),
                     ),
-                    onTap: () {},
-                  ),
-                  _SettingsTile(
-                    icon: Icons.language_outlined,
-                    title: 'Language',
-                    subtitle: 'English',
                     onTap: () {},
                   ),
                   _SettingsTile(
@@ -202,7 +193,8 @@ class _SettingsTile extends StatelessWidget {
               ),
             )
           : null,
-      trailing: trailing ??
+      trailing:
+          trailing ??
           const Icon(
             Icons.chevron_right,
             color: AppColors.textSecondary,

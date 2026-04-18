@@ -4,7 +4,7 @@ import 'package:unseen/config/colors.dart';
 import 'package:unseen/modules/home/presentation/pages/tabs/maps_tab.dart';
 import 'package:unseen/modules/missions/presentation/pages/missions_tab.dart';
 import 'package:unseen/modules/home/presentation/pages/tabs/notifications_tab.dart';
-import 'package:unseen/modules/home/presentation/pages/tabs/settings_tab.dart';
+import 'package:unseen/modules/user/presentation/pages/settings_tab.dart';
 import 'package:unseen/modules/home/presentation/controllers/home_controller.dart';
 
 class HomePage extends GetView<HomeController> {

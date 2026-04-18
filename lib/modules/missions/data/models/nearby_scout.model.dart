@@ -6,10 +6,7 @@ import 'package:unseen/modules/missions/domain/entities/nearby_scout.entity.dart
 /// Delegates all user-field parsing to [UserModel.fromMap] — no duplication
 /// of the mapping logic that already lives in the core user model.
 class NearbyScoutModel extends NearbyScout {
-  const NearbyScoutModel({
-    required super.user,
-    required super.distanceMeters,
-  });
+  const NearbyScoutModel({required super.user, required super.distanceMeters});
 
   factory NearbyScoutModel.fromMap(Map<String, dynamic> data) =>
       NearbyScoutModel(

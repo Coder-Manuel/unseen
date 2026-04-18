@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:unseen/config/colors.dart';
@@ -200,13 +201,13 @@ class _MissionCard extends StatelessWidget {
               // Address as mission "title"
               Expanded(
                 child: Text(
-                  mission.address,
+                  '${mission.type?.label}\n${mission.address}',
                   style: const TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
                   ),
-                  maxLines: 1,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -230,10 +231,17 @@ class _MissionCard extends StatelessWidget {
             children: [
               // Duration
               const Icon(
-                Icons.timer_outlined,
-                color: AppColors.textSecondary,
-                size: 14,
-              ),
+                    Icons.timer_outlined,
+                    color: AppColors.textSecondary,
+                    size: 14,
+                  )
+                  .animate(onPlay: (c) => c.repeat(reverse: true))
+                  .scaleXY(
+                    begin: 0.9,
+                    end: 1.0,
+                    duration: 800.ms,
+                    curve: Curves.easeInOut,
+                  ),
               const SizedBox(width: 4),
               Text(
                 mission.durationLabel,
@@ -243,12 +251,8 @@ class _MissionCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 14),
+
               // Price
-              const Icon(
-                Icons.attach_money,
-                color: AppColors.primary,
-                size: 14,
-              ),
               Text(
                 '${mission.currency} ${mission.price.toStringAsFixed(0)}',
                 style: const TextStyle(
@@ -280,13 +284,21 @@ class _MissionCard extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: onJoinStream,
-                icon: const Icon(Icons.videocam_rounded, size: 16),
+                icon: const Icon(Icons.videocam_rounded, size: 20)
+                    .animate(onPlay: (c) => c.repeat(reverse: true))
+                    .scaleXY(
+                      begin: 0.85,
+                      end: 1.0,
+                      duration: 900.ms,
+                      curve: Curves.easeInOut,
+                    ),
                 label: const Text(
                   'Join Stream',
                   style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1D4ED8),
+                  minimumSize: const Size(double.infinity, 30),
+                  backgroundColor: Colors.red[800],
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   shape: RoundedRectangleBorder(
