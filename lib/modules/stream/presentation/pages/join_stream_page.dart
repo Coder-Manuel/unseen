@@ -160,10 +160,7 @@ class _RemoteFeed extends StatelessWidget {
         child: const Center(
           child: Text(
             'Waiting for scout feed…',
-            style: TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 14,
-            ),
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
           ),
         ),
       );
@@ -201,13 +198,11 @@ class _TopOverlay extends StatelessWidget {
                 8.verticalSpace,
                 const _WatchingBadge(),
                 6.verticalSpace,
-                Obx(
-                  () => Text(
-                    '${ctrl.scoutName.value.isNotEmpty ? ctrl.scoutName.value : 'Scout'} is streaming',
-                    style: const TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 12,
-                    ),
+                Text(
+                  'Scout is streaming',
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 12,
                   ),
                 ),
               ],
@@ -264,16 +259,12 @@ class _BottomSection extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Obx(
-                            () => Text(
-                              ctrl.scoutName.value.isNotEmpty
-                                  ? ctrl.scoutName.value
-                                  : 'Scout',
-                              style: const TextStyle(
-                                color: AppColors.textPrimary,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                              ),
+                          Text(
+                            ctrl.mission.scout?.displayName ?? 'Scout',
+                            style: const TextStyle(
+                              color: AppColors.textPrimary,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                           6.verticalSpace,
@@ -418,6 +409,8 @@ class _ScoutAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final name = ctrl.mission.scout?.displayName ?? '';
+    final initial = name.isNotEmpty ? name[0].toUpperCase() : 'S';
     return Container(
       width: 54,
       height: 54,
@@ -429,18 +422,14 @@ class _ScoutAvatar extends StatelessWidget {
         child: Container(
           color: AppColors.surface,
           child: Center(
-            child: Obx(() {
-              final name = ctrl.scoutName.value;
-              final initial = name.isNotEmpty ? name[0].toUpperCase() : 'S';
-              return Text(
-                initial,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                ),
-              );
-            }),
+            child: Text(
+              initial,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           ),
         ),
       ),
@@ -512,9 +501,7 @@ class _LeaveStreamButton extends StatelessWidget {
         backgroundColor: const Color(0xFF1D4ED8),
         foregroundColor: Colors.white,
         minimumSize: const Size.fromHeight(56),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         elevation: 0,
       ),
     );

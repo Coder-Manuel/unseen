@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:unseen/config/colors.dart';
 import 'package:unseen/core/utils/size.util.dart';
 import 'package:unseen/core/widgets/custom_dropdown.dart';
+import 'package:unseen/modules/missions/data/models/enum.dart';
 import 'package:unseen/modules/missions/presentation/controllers/post_mission_controller.dart';
 
 class PostMissionPage extends GetView<PostMissionController> {
@@ -55,6 +56,24 @@ class PostMissionPage extends GetView<PostMissionController> {
                         ),
                       ),
                       24.verticalSpace,
+
+                      // ── Mission type ──────────────────────────────────────
+                      _FieldLabel('MISSION TYPE'),
+                      6.verticalSpace,
+                      Obx(
+                        () => CustomDropDown<MissionType>(
+                          hint: 'Select mission type',
+                          value: controller.selectedMissionType.value,
+                          items: controller.missionTypes,
+                          itemLabel: (v) => v.label,
+                          prefixIcon: Icons.radar_outlined,
+                          onChanged: (v) =>
+                              controller.selectedMissionType.value = v,
+                          validator: (v) =>
+                              v == null ? 'Select a mission type' : null,
+                        ),
+                      ),
+                      20.verticalSpace,
 
                       // ── Instructions to scout (description) ──────────────
                       _FieldLabel('INSTRUCTIONS TO SCOUT'),

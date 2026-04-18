@@ -24,7 +24,6 @@ class JoinStreamController extends GetxController {
   final hasError = false.obs;
   final elapsedSeconds = 0.obs;
   final remoteVideoTrack = Rx<VideoTrack?>(null);
-  final scoutName = ''.obs;
 
   Timer? _elapsedTimer;
 

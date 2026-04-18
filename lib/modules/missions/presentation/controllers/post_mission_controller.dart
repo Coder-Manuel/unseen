@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:unseen/core/utils/loader.dart';
 import 'package:unseen/core/utils/toast.dart';
+import 'package:unseen/modules/missions/data/models/enum.dart';
 import 'package:unseen/modules/missions/data/models/mission.inputs.dart';
 import 'package:unseen/modules/missions/domain/usecases/post_mission.usecase.dart';
 import 'package:unseen/modules/missions/presentation/pages/finding_scouts_page.dart';
@@ -18,6 +19,12 @@ class PostMissionController extends GetxController {
 
   /// Currently selected duration in minutes (null = nothing chosen yet).
   final Rxn<int> selectedDuration = Rxn<int>();
+
+  /// Mission type options.
+  final List<MissionType> missionTypes = MissionType.values;
+
+  /// Currently selected mission type (null = nothing chosen yet).
+  final Rxn<MissionType> selectedMissionType = Rxn<MissionType>();
 
   // ── Location (set via LocationPickerPage) ────────────────────────────────
   final RxString address = ''.obs;
@@ -74,6 +81,7 @@ class PostMissionController extends GetxController {
         currency: currency.value,
         price: selectedPrice.toDouble(),
         durationInSec: durationInSec,
+        missionType: selectedMissionType.value ?? MissionType.surveillance,
       ),
     );
     Loader.dismiss();

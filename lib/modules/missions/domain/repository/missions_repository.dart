@@ -2,6 +2,7 @@ import 'package:unseen/core/types/repo_reponse.type.dart';
 import 'package:unseen/modules/missions/data/models/mission.inputs.dart';
 import 'package:unseen/modules/missions/domain/entities/mission.entity.dart';
 import 'package:unseen/modules/missions/domain/entities/nearby_scout.entity.dart';
+import 'package:unseen/modules/missions/domain/entities/session.entity.dart';
 
 abstract class MissionsRepository {
   Future<RepoResponse<MissionEntity>> postMission(PostMissionInput input);
@@ -16,5 +17,6 @@ abstract class MissionsRepository {
   ///
   /// Supabase RLS ensures only the authenticated user's rows are delivered.
   /// Rows are emitted in full on every insert / update / delete.
-  Stream<List<MissionEntity>> watchActiveMissions();
+  Stream<RepoResponse<List<MissionEntity>>> watchActiveMissions();
+  Stream<RepoResponse<SessionEntity>> watchLiveSession(List<String> missions);
 }

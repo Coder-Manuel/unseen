@@ -1,4 +1,6 @@
+import 'package:unseen/core/models/user.model.dart';
 import 'package:unseen/core/utils/ewkb_parser.dart';
+import 'package:unseen/modules/missions/data/models/enum.dart';
 import 'package:unseen/modules/missions/domain/entities/mission.entity.dart';
 
 class MissionModel extends MissionEntity {
@@ -8,6 +10,7 @@ class MissionModel extends MissionEntity {
     super.updatedAt,
     super.clientId,
     super.scoutId,
+    super.scout,
     required super.description,
     required super.currency,
     required super.price,
@@ -16,6 +19,7 @@ class MissionModel extends MissionEntity {
     super.latitude,
     super.longitude,
     super.status,
+    super.type,
     super.acceptedAt,
     super.completedAt,
   });
@@ -38,10 +42,17 @@ class MissionModel extends MissionEntity {
       address: m['address']?.toString() ?? '',
       latitude: latitude,
       longitude: longitude,
+      scout: m['scout'] != null ? UserModel.fromMap(m['scout']) : null,
       status: MissionStatus.values.firstWhere(
         (v) => v.name == m['status'],
         orElse: () => MissionStatus.open,
       ),
+      type: m['type'] != null
+          ? MissionType.values.firstWhere(
+              (v) => v.apiValue == m['type'],
+              orElse: () => MissionType.surveillance,
+            )
+          : null,
       acceptedAt: m['accepted_at']?.toString(),
       completedAt: m['completed_at']?.toString(),
     );

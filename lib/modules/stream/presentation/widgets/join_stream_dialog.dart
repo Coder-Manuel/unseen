@@ -37,8 +37,8 @@ class JoinStreamDialog extends StatelessWidget {
             const SizedBox(height: 16),
 
             // ── Title ────────────────────────────────────────────────────────
-            const Text(
-              'Scout is Live!',
+            Text(
+              'Scout ${mission.scout?.firstName ?? ''} is Live!',
               style: TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 20,

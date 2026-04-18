@@ -1,3 +1,5 @@
+import 'package:unseen/core/types/repo_reponse.type.dart';
+import 'package:unseen/core/types/usecase.dart';
 import 'package:unseen/modules/missions/domain/entities/mission.entity.dart';
 import 'package:unseen/modules/missions/domain/repository/missions_repository.dart';
 
@@ -7,9 +9,12 @@ import 'package:unseen/modules/missions/domain/repository/missions_repository.da
 /// [UseCase<T, Params>] interface because it emits multiple values over time
 /// rather than a single [RepoResponse]. The stream itself never errors;
 /// failures are swallowed by the Supabase client and surface as empty lists.
-class WatchActiveMissionsUseCase {
+class WatchActiveMissionsUseCase
+    extends StreamUseCase<List<MissionEntity>, dynamic> {
   final MissionsRepository repo;
   WatchActiveMissionsUseCase({required this.repo});
 
-  Stream<List<MissionEntity>> call() => repo.watchActiveMissions();
+  @override
+  Stream<RepoResponse<List<MissionEntity>>> call([_]) =>
+      repo.watchActiveMissions();
 }

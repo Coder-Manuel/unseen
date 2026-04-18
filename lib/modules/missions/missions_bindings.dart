@@ -9,6 +9,7 @@ import 'package:unseen/modules/missions/domain/usecases/get_my_missions.usecase.
 import 'package:unseen/modules/missions/domain/usecases/get_nearby_scouts.usecase.dart';
 import 'package:unseen/modules/missions/domain/usecases/watch_active_missions.usecase.dart';
 import 'package:unseen/modules/missions/domain/usecases/post_mission.usecase.dart';
+import 'package:unseen/modules/missions/domain/usecases/watch_active_session.usecase.dart';
 import 'package:unseen/modules/missions/presentation/controllers/finding_scouts_controller.dart';
 import 'package:unseen/modules/missions/presentation/controllers/location_picker_controller.dart';
 import 'package:unseen/modules/missions/presentation/controllers/missions_tab_controller.dart';
@@ -52,6 +53,10 @@ class MissionsBindings extends Bindings {
     );
     Get.lazyPut<WatchActiveMissionsUseCase>(
       () => WatchActiveMissionsUseCase(repo: Get.find<MissionsRepository>()),
+      fenix: true,
+    );
+    Get.lazyPut<WatchActiveSessionUseCase>(
+      () => WatchActiveSessionUseCase(repo: Get.find<MissionsRepository>()),
       fenix: true,
     );
 

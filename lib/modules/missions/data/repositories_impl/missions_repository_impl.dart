@@ -3,9 +3,11 @@ import 'package:unseen/core/utils/error_wrapper.dart';
 import 'package:unseen/modules/missions/data/models/mission.inputs.dart';
 import 'package:unseen/modules/missions/data/models/mission.model.dart';
 import 'package:unseen/modules/missions/data/models/nearby_scout.model.dart';
+import 'package:unseen/modules/missions/data/models/session.model.dart';
 import 'package:unseen/modules/missions/data/sources/remote_missions_datasource.dart';
 import 'package:unseen/modules/missions/domain/entities/mission.entity.dart';
 import 'package:unseen/modules/missions/domain/entities/nearby_scout.entity.dart';
+import 'package:unseen/modules/missions/domain/entities/session.entity.dart';
 import 'package:unseen/modules/missions/domain/repository/missions_repository.dart';
 
 class MissionsRepositoryImpl extends MissionsRepository {
@@ -47,19 +49,18 @@ class MissionsRepositoryImpl extends MissionsRepository {
   }
 
   @override
-  Stream<List<MissionEntity>> watchActiveMissions() {
-    return remoteDatasource.watchActiveMissions().map(
-      (rows) => rows
-          .map(MissionModel.fromMap)
-          .where(
-            (m) => [
-              MissionStatus.open,
-              MissionStatus.accepted,
-              MissionStatus.enroute,
-              MissionStatus.live,
-            ].contains(m.status),
-          )
-          .toList(),
+  Stream<RepoResponse<List<MissionEntity>>> watchActiveMissions() async* {
+    yield* ErrorWrapper.stream<RepoResponse<List<MissionEntity>>>(
+      () async* {
+        await for (final rows in remoteDatasource.watchActiveMissions()) {
+          yield SuccessResponse(
+            rows.map((row) => MissionModel.fromMap(row)).toList(),
+          );
+        }
+      },
+      onError: (_) => FailureResponse('An error occurred. Kindly retry.'),
+      library: _library,
+      description: 'while streaming active missions',
     );
   }
 
@@ -83,5 +84,21 @@ class MissionsRepositoryImpl extends MissionsRepository {
       description: 'while fetching nearby scouts',
     );
     return response!;
+  }
+
+  @override
+  Stream<RepoResponse<SessionEntity>> watchLiveSession(
+    List<String> missions,
+  ) async* {
+    yield* ErrorWrapper.stream<RepoResponse<SessionEntity>>(
+      () async* {
+        await for (final row in remoteDatasource.watchLiveSessions(missions)) {
+          yield SuccessResponse(SessionModel.fromMap(row));
+        }
+      },
+      onError: (_) => FailureResponse('Failed to watch sessions.'),
+      library: _library,
+      description: 'while streaming sessions',
+    );
   }
 }

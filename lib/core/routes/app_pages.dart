@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:unseen/modules/auth/auth_routes.dart';
 import 'package:unseen/modules/home/home_routes.dart';
 import 'package:unseen/modules/missions/missions_routes.dart';
+import 'package:unseen/modules/stream/stream_routes.dart';
 
 class AppPages {
   static final List<GetPage> routes = [
@@ -9,5 +10,6 @@ class AppPages {
     ...HomeRoutes().pages,
     ...MissionsRoutes().pages,
     ...HomeRoutes().pages,
+    ...StreamRoutes().pages,
   ];
 }

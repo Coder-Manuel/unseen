@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:unseen/core/utils/toast.dart';
+import 'package:unseen/modules/missions/data/models/enum.dart';
 import 'package:unseen/modules/missions/domain/entities/mission.entity.dart';
 import 'package:unseen/modules/missions/domain/entities/nearby_scout.entity.dart';
 import 'package:unseen/modules/missions/domain/usecases/get_nearby_scouts.usecase.dart';
@@ -51,10 +52,7 @@ class FindingScoutsController extends GetxController {
 
     isLoading.value = false;
 
-    response.fold(
-      (error) => Toast.error(error.message),
-      _revealProgressively,
-    );
+    response.fold((error) => Toast.error(error.message), _revealProgressively);
   }
 
   // ── Progressive reveal (keeps the Uber-radar feel with real data) ─────────

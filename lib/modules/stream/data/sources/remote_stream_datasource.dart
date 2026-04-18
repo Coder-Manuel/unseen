@@ -1,7 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract class RemoteStreamDatasource {
-  /// Invokes the `join-stream` edge function with [missionId].
+  /// Invokes the `go-live` edge function with [missionId].
   Future<FunctionResponse> joinStream({required String missionId});
 }
 
@@ -12,9 +12,6 @@ class RemoteStreamDatasourceImpl implements RemoteStreamDatasource {
 
   @override
   Future<FunctionResponse> joinStream({required String missionId}) {
-    return client.functions.invoke(
-      'join-stream',
-      body: {'mission_id': missionId},
-    );
+    return client.functions.invoke('go-live', body: {'mission_id': missionId});
   }
 }

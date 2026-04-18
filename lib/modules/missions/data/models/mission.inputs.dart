@@ -1,3 +1,5 @@
+import 'package:unseen/modules/missions/data/models/enum.dart';
+
 class PostMissionInput {
   /// Human-readable address shown in the UI banner.
   final String address;
@@ -16,6 +18,8 @@ class PostMissionInput {
   /// Requested duration in seconds.
   final int durationInSec;
 
+  final MissionType missionType;
+
   PostMissionInput({
     required this.address,
     required this.latitude,
@@ -24,6 +28,7 @@ class PostMissionInput {
     required this.currency,
     required this.price,
     required this.durationInSec,
+    required this.missionType,
   });
 
   Map<String, dynamic> toMap() => {
@@ -34,5 +39,6 @@ class PostMissionInput {
     'currency': currency,
     'price': price,
     'duration_in_sec': durationInSec,
+    'type': missionType.apiValue,
   };
 }

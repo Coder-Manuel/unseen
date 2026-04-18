@@ -1,10 +1,11 @@
 import 'package:unseen/core/entities/base.entity.dart';
-
-enum MissionStatus { open, accepted, enroute, live, completed, cancelled }
+import 'package:unseen/core/entities/user.entity.dart';
+import 'package:unseen/modules/missions/data/models/enum.dart';
 
 class MissionEntity extends BaseEntity {
   final String? clientId;
   final String? scoutId;
+  final User? scout;
   final String? sessionId;
 
   /// Free-text instructions sent to the scout.
@@ -29,6 +30,8 @@ class MissionEntity extends BaseEntity {
 
   final MissionStatus status;
 
+  final MissionType? type;
+
   final String? acceptedAt;
   final String? completedAt;
 
@@ -36,6 +39,7 @@ class MissionEntity extends BaseEntity {
     super.id,
     super.createdAt,
     super.updatedAt,
+    this.scout,
     this.clientId,
     this.scoutId,
     this.sessionId,
@@ -47,6 +51,7 @@ class MissionEntity extends BaseEntity {
     this.latitude,
     this.longitude,
     this.status = MissionStatus.open,
+    this.type,
     this.acceptedAt,
     this.completedAt,
   });

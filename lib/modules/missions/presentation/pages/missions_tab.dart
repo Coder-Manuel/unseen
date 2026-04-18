@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:unseen/config/colors.dart';
 import 'package:unseen/core/utils/extensions.dart';
+import 'package:unseen/modules/missions/data/models/enum.dart';
 import 'package:unseen/modules/missions/domain/entities/mission.entity.dart';
 import 'package:unseen/modules/missions/presentation/controllers/missions_tab_controller.dart';
 import 'package:unseen/modules/missions/presentation/pages/post_mission_page.dart';
