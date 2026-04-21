@@ -67,7 +67,7 @@ class FindingScoutsController extends GetxController {
       NearbyScoutsInput(
         latitude: _mission.latitude ?? 0,
         longitude: _mission.longitude ?? 0,
-        radiusKm: 5.0,
+        radiusKm: 80,
       ),
     );
 

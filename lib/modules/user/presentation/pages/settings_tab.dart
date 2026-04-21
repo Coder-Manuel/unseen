@@ -1,114 +1,180 @@
 import 'package:flutter/material.dart';
-import 'package:get/state_manager.dart';
+import 'package:get/get.dart';
 import 'package:unseen/config/colors.dart';
 import 'package:unseen/modules/user/presentation/controllers/user_controller.dart';
 
-class SettingsTab extends GetView<UserController> {
+class SettingsTab extends StatefulWidget {
   const SettingsTab({super.key});
+
+  @override
+  State<SettingsTab> createState() => _SettingsTabState();
+}
+
+class _SettingsTabState extends State<SettingsTab> {
+  final _userCtrl = Get.find<UserController>();
+
+  bool _biometricsEnabled = true;
+  bool _notificationsEnabled = true;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: ListView(
+          padding: EdgeInsets.zero,
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-              child: Row(
+            // ── Profile header ──────────────────────────────────────────────
+            const SizedBox(height: 36),
+            Obx(() {
+              final user = _userCtrl.currentUser.value;
+              final name = user?.fullName ?? 'User';
+              final role = _roleLabel(user?.role?.name);
+              final rating = user?.rating?.toStringAsFixed(1) ?? '–';
+              return Column(
                 children: [
-                  Container(
-                    width: 56,
-                    height: 56,
-                    decoration: const BoxDecoration(
-                      color: AppColors.surface,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.person_outline,
-                      color: AppColors.textSecondary,
-                      size: 28,
+                  // Avatar with golden ring
+                  _ProfileAvatar(name: name),
+                  const SizedBox(height: 16),
+                  // Name — italic serif feel via fontStyle
+                  Text(
+                    name,
+                    style: const TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 26,
+                      fontWeight: FontWeight.w600,
+                      fontStyle: FontStyle.italic,
                     ),
                   ),
-                  const SizedBox(width: 14),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  const SizedBox(height: 6),
+                  // Role · rating
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        controller.currentUser.value?.fullName ?? 'Client',
-                        style: TextStyle(
-                          color: AppColors.textPrimary,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                        role,
+                        style: const TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                      SizedBox(height: 2),
-                      Text(
-                        controller.currentUser.value?.email ??
-                            'email unavailable',
+                      const Text(
+                        ' · ',
                         style: TextStyle(
                           color: AppColors.textSecondary,
-                          fontSize: 13,
+                          fontSize: 14,
                         ),
+                      ),
+                      Text(
+                        rating,
+                        style: const TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(
+                        Icons.star_rounded,
+                        color: AppColors.textSecondary,
+                        size: 16,
                       ),
                     ],
                   ),
                 ],
-              ),
-            ),
-            const Divider(color: AppColors.divider, height: 1),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(vertical: 8),
+              );
+            }),
+
+            const SizedBox(height: 36),
+
+            // ── Settings tiles ──────────────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
                 children: [
-                  _SectionHeader(title: 'Account'),
-                  _SettingsTile(
-                    icon: Icons.person_outline,
-                    title: 'Profile',
-                    onTap: () {},
-                  ),
-                  _SettingsTile(
-                    icon: Icons.notifications_outlined,
-                    title: 'Notifications',
-                    trailing: Switch(
-                      value: true,
-                      onChanged: (_) {},
-                      activeThumbColor: AppColors.primary,
-                      activeTrackColor: AppColors.primary.withAlpha(80),
-                    ),
-                    onTap: () {},
-                  ),
-                  _SectionHeader(title: 'App'),
-                  _SettingsTile(
+                  // Enable Biometrics
+                  _SettingsCard(
                     icon: Icons.fingerprint_rounded,
-                    title: 'Biometrics Login',
-                    trailing: Switch(
-                      value: false,
-                      onChanged: (_) {},
-                      activeThumbColor: AppColors.primary,
-                      activeTrackColor: AppColors.primary.withAlpha(80),
+                    title: 'Enable Biometrics',
+                    subtitle: 'Face ID or Fingerprint',
+                    trailing: _AppSwitch(
+                      value: _biometricsEnabled,
+                      onChanged: (v) => setState(() => _biometricsEnabled = v),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Push Notifications
+                  _SettingsCard(
+                    icon: Icons.notifications_outlined,
+                    title: 'Push Notifications',
+                    subtitle: 'Mission alerts & updates',
+                    trailing: _AppSwitch(
+                      value: _notificationsEnabled,
+                      onChanged: (v) =>
+                          setState(() => _notificationsEnabled = v),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Privacy Policy
+                  _SettingsCard(
+                    icon: Icons.shield_outlined,
+                    title: 'Privacy Policy',
+                    trailing: const Icon(
+                      Icons.link_rounded,
+                      color: AppColors.textSecondary,
+                      size: 20,
                     ),
                     onTap: () {},
                   ),
-                  _SettingsTile(
-                    icon: Icons.help_outline,
-                    title: 'Help & Support',
+                  const SizedBox(height: 12),
+
+                  // Terms & Conditions
+                  _SettingsCard(
+                    icon: Icons.description_outlined,
+                    title: 'Terms & Conditions',
+                    trailing: const Icon(
+                      Icons.link_rounded,
+                      color: AppColors.textSecondary,
+                      size: 20,
+                    ),
                     onTap: () {},
                   ),
-                  _SettingsTile(
-                    icon: Icons.info_outline,
-                    title: 'About UnSeen',
-                    subtitle: 'v1.0.0',
+                  const SizedBox(height: 12),
+
+                  // Account Settings
+                  _SettingsCard(
+                    icon: Icons.settings_outlined,
+                    title: 'Account Settings',
+                    trailing: const Icon(
+                      Icons.chevron_right_rounded,
+                      color: AppColors.textSecondary,
+                      size: 22,
+                    ),
                     onTap: () {},
                   ),
-                  _SectionHeader(title: 'Danger Zone'),
-                  _SettingsTile(
-                    icon: Icons.logout,
-                    title: 'Sign Out',
-                    iconColor: const Color(0xFFEF4444),
-                    titleColor: const Color(0xFFEF4444),
-                    onTap: () {},
+
+                  const SizedBox(height: 28),
+
+                  // ── Logout button ─────────────────────────────────────────
+                  _LogoutButton(onTap: () {}),
+
+                  const SizedBox(height: 24),
+
+                  // ── Version ───────────────────────────────────────────────
+                  const Text(
+                    'UNSEEN APP VERSION 1.0.4',
+                    style: TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 1.2,
+                    ),
                   ),
+
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
@@ -117,90 +183,187 @@ class SettingsTab extends GetView<UserController> {
       ),
     );
   }
+
+  String _roleLabel(String? role) {
+    if (role == null) return 'Client';
+    switch (role.toLowerCase()) {
+      case 'scout':
+        return 'Scout';
+      case 'client':
+      default:
+        return 'Client';
+    }
+  }
 }
 
-class _SectionHeader extends StatelessWidget {
-  final String title;
-  const _SectionHeader({required this.title});
+// ─── Profile avatar ───────────────────────────────────────────────────────────
+
+class _ProfileAvatar extends StatelessWidget {
+  final String name;
+  const _ProfileAvatar({required this.name});
+
+  String get _initials {
+    final parts = name.trim().split(' ');
+    if (parts.length >= 2 && parts[1].isNotEmpty) {
+      return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+    }
+    return name.isNotEmpty ? name[0].toUpperCase() : '?';
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 20, 24, 8),
-      child: Text(
-        title.toUpperCase(),
-        style: const TextStyle(
-          color: AppColors.textSecondary,
-          fontSize: 11,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 1.2,
+    return Container(
+      width: 100,
+      height: 100,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: AppColors.primary, width: 3),
+        color: AppColors.inputBg,
+      ),
+      child: Center(
+        child: Text(
+          _initials,
+          style: const TextStyle(
+            color: AppColors.primary,
+            fontSize: 34,
+            fontWeight: FontWeight.w700,
+          ),
         ),
       ),
     );
   }
 }
 
-class _SettingsTile extends StatelessWidget {
+// ─── Settings card ────────────────────────────────────────────────────────────
+
+class _SettingsCard extends StatelessWidget {
   final IconData icon;
   final String title;
   final String? subtitle;
   final Widget? trailing;
-  final VoidCallback onTap;
-  final Color? iconColor;
-  final Color? titleColor;
+  final VoidCallback? onTap;
 
-  const _SettingsTile({
+  const _SettingsCard({
     required this.icon,
     required this.title,
-    required this.onTap,
     this.subtitle,
     this.trailing,
-    this.iconColor,
-    this.titleColor,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 2),
-      leading: Container(
-        width: 38,
-        height: 38,
-        decoration: BoxDecoration(
-          color: (iconColor ?? AppColors.textSecondary).withAlpha(20),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Icon(
-          icon,
-          color: iconColor ?? AppColors.textSecondary,
-          size: 20,
-        ),
-      ),
-      title: Text(
-        title,
-        style: TextStyle(
-          color: titleColor ?? AppColors.textPrimary,
-          fontSize: 15,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      subtitle: subtitle != null
-          ? Text(
-              subtitle!,
-              style: const TextStyle(
-                color: AppColors.textSecondary,
-                fontSize: 12,
+    return Material(
+      color: AppColors.inputBg,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Row(
+            children: [
+              // Icon container
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withAlpha(30),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: AppColors.primary, size: 22),
               ),
-            )
-          : null,
-      trailing:
-          trailing ??
-          const Icon(
-            Icons.chevron_right,
-            color: AppColors.textSecondary,
-            size: 20,
+              const SizedBox(width: 14),
+
+              // Text
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        color: AppColors.textPrimary,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    if (subtitle != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle!,
+                        style: const TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+
+              // Trailing
+              if (trailing != null) trailing!,
+            ],
           ),
-      onTap: onTap,
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Toggle switch ────────────────────────────────────────────────────────────
+
+class _AppSwitch extends StatelessWidget {
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  const _AppSwitch({required this.value, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return Switch(
+      value: value,
+      onChanged: onChanged,
+      activeColor: AppColors.primary,
+      activeTrackColor: const Color(0xFF3A3A3A),
+      inactiveThumbColor: AppColors.textSecondary,
+      inactiveTrackColor: const Color(0xFF2A2A2A),
+      trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
+    );
+  }
+}
+
+// ─── Logout button ────────────────────────────────────────────────────────────
+
+class _LogoutButton extends StatelessWidget {
+  final VoidCallback onTap;
+  const _LogoutButton({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 56,
+      child: Material(
+        color: const Color(0xFF3B1219),
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: const Center(
+            child: Text(
+              'Logout',
+              style: TextStyle(
+                color: Color(0xFFEF4444),
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.3,
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
