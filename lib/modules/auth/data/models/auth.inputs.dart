@@ -38,7 +38,7 @@ class SignupInput {
   SignupInput({
     required this.email,
     required this.password,
-    this.role = UserRole.scout,
+    this.role = UserRole.client,
   });
 
   Map<String, dynamic> toMap() => {

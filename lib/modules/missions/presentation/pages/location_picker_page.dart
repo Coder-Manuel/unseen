@@ -24,7 +24,7 @@ class LocationPickerPage extends GetView<LocationPickerController> {
                 zoom: 15,
               ),
               onMapCreated: controller.onMapCreated,
-              // onCameraMove: controller.onCameraMove,
+              onCameraMove: controller.onCameraMove,
               onCameraIdle: controller.onCameraIdle,
               myLocationEnabled: true,
               myLocationButtonEnabled: false,
