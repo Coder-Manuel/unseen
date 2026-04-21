@@ -13,17 +13,37 @@ class FindingScoutsController extends GetxController {
   final _getNearbyScoutsUseCase = Get.find<GetNearbyScoutsUseCase>();
   final _supabase = Get.find<SupabaseClient>();
 
+  // ── Timeout constants ─────────────────────────────────────────────────────
+
+  /// How long to wait for scouts before showing the no-scouts fallback UI.
+  static const _noScoutsTimeout = Duration(seconds: 10);
+
+  /// How long the redirect countdown lasts before going back to home.
+  static const _redirectCountdownStart = 6;
+
   // ── State ─────────────────────────────────────────────────────────────────
   final RxInt scoutsNotified = 0.obs;
   final RxList<NearbyScout> scouts = <NearbyScout>[].obs;
   final RxList<RadarDot> radarDots = <RadarDot>[].obs;
   final RxBool isLoading = true.obs;
 
+  /// True once the 20 s window expires without any scout being revealed.
+  final RxBool showNoScoutsFallback = false.obs;
+
+  /// Countdown (seconds) shown in the fallback UI before redirecting to home.
+  final RxInt redirectCountdown = _redirectCountdownStart.obs;
+
   // ── Private ───────────────────────────────────────────────────────────────
   late final MissionEntity _mission;
   StreamSubscription? _missionSubscription;
   Timer? _notifyTimer;
   Timer? _revealTimer;
+
+  /// Fires after [_noScoutsTimeout] if no scouts have appeared.
+  Timer? _noScoutsTimer;
+
+  /// Ticks every second while the fallback countdown is running.
+  Timer? _redirectTimer;
 
   // ── Init ──────────────────────────────────────────────────────────────────
 
@@ -35,6 +55,7 @@ class FindingScoutsController extends GetxController {
     _mission = Get.arguments as MissionEntity;
     _fetchNearbyScouts();
     _watchMissionAcceptance();
+    _startNoScoutsTimer();
   }
 
   // ── Fetch nearby scouts (one-time snapshot) ───────────────────────────────
@@ -55,10 +76,43 @@ class FindingScoutsController extends GetxController {
     response.fold((error) => Toast.error(error.message), _revealProgressively);
   }
 
+  // ── No-scouts timeout ─────────────────────────────────────────────────────
+
+  /// Starts the 20-second window. If at least one scout is revealed before it
+  /// fires, [_cancelNoScoutsTimer] suppresses it.
+  void _startNoScoutsTimer() {
+    _noScoutsTimer = Timer(_noScoutsTimeout, _onNoScoutsTimeout);
+  }
+
+  /// Suppresses the fallback — called only when real scouts are being revealed
+  /// or when a scout accepts the mission so the redirect doesn't interfere.
+  void _cancelNoScoutsTimer() {
+    _noScoutsTimer?.cancel();
+    _noScoutsTimer = null;
+  }
+
+  void _onNoScoutsTimeout() {
+    if (scouts.isNotEmpty) return; // scouts arrived just in time — do nothing
+    showNoScoutsFallback.value = true;
+    redirectCountdown.value = _redirectCountdownStart;
+    _redirectTimer = Timer.periodic(const Duration(seconds: 1), (t) {
+      if (redirectCountdown.value <= 1) {
+        t.cancel();
+        Get.until((route) => route.isFirst);
+      } else {
+        redirectCountdown.value--;
+      }
+    });
+  }
+
   // ── Progressive reveal (keeps the Uber-radar feel with real data) ─────────
 
   void _revealProgressively(List<NearbyScout> nearbyScouts) {
+    // Only suppress the timeout when there are real scouts to show.
+    // An empty response leaves the timer running so the 20 s fallback fires.
     if (nearbyScouts.isEmpty) return;
+
+    _cancelNoScoutsTimer();
 
     // Animate the "X SCOUTS NOTIFIED" counter to ~8× the actual count,
     // capped at 50, to give a sense of broadcast reach.
@@ -123,6 +177,9 @@ class FindingScoutsController extends GetxController {
           final status = rows.first['status'] as String?;
           if (status == MissionStatus.accepted.name) {
             _missionSubscription?.cancel();
+            // Cancel any in-progress redirect so it doesn't fight navigation.
+            _cancelNoScoutsTimer();
+            _redirectTimer?.cancel();
             // TODO: navigate to the mission-tracker screen once it exists.
             // Get.offNamed(MissionTrackerPage.route, arguments: _mission);
             Toast.success('A scout has accepted your mission! 🎉');
@@ -136,6 +193,8 @@ class FindingScoutsController extends GetxController {
   void onClose() {
     _notifyTimer?.cancel();
     _revealTimer?.cancel();
+    _noScoutsTimer?.cancel();
+    _redirectTimer?.cancel();
     _missionSubscription?.cancel();
     super.onClose();
   }

@@ -100,7 +100,7 @@ class PhoneSetupPage extends GetView<RegisterController> {
               ),
               32.verticalSpace,
               PrimaryButton(
-                label: 'Send Verification Code',
+                label: 'Update',
                 onPressed: () async => await controller.setupPhone(),
               ),
               const Spacer(flex: 4),

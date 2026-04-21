@@ -15,7 +15,7 @@ class PostMissionController extends GetxController {
   final descriptionCTRL = TextEditingController();
 
   /// Duration options in minutes shown in the dropdown.
-  final List<int> durations = const [5, 10, 15, 20, 30];
+  final List<int> durations = const [2, 5, 10, 15, 20, 30];
 
   /// Currently selected duration in minutes (null = nothing chosen yet).
   final Rxn<int> selectedDuration = Rxn<int>();
@@ -91,7 +91,7 @@ class PostMissionController extends GetxController {
       // Pass the created MissionEntity as a GetX argument so
       // FindingScoutsController can read the mission id + location
       // for the nearby-scouts fetch and the Realtime subscription.
-      (mission) => Get.toNamed(FindingScoutsPage.route, arguments: mission),
+      (mission) => Get.offNamed(FindingScoutsPage.route, arguments: mission),
     );
   }
 

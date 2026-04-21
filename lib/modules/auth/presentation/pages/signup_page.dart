@@ -89,6 +89,19 @@ class SignupPage extends GetView<RegisterController> {
                       color: AppColors.iconColor,
                       size: 20,
                     ),
+                    suffixIcon: GestureDetector(
+                      onTap: controller.toggleObscurePass,
+                      child: Padding(
+                        padding: const EdgeInsets.all(14),
+                        child: Icon(
+                          controller.obscurePass.value
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
+                          color: AppColors.iconColor,
+                          size: 20,
+                        ),
+                      ),
+                    ),
                     validator: (v) {
                       if (v == null || v.isEmpty) return 'Enter your password';
                       if (v.length < 8) return 'Minimum 8 characters';
@@ -109,6 +122,19 @@ class SignupPage extends GetView<RegisterController> {
                       Icons.lock_outline,
                       color: AppColors.iconColor,
                       size: 20,
+                    ),
+                    suffixIcon: GestureDetector(
+                      onTap: controller.toggleObscureConfirmPass,
+                      child: Padding(
+                        padding: const EdgeInsets.all(14),
+                        child: Icon(
+                          controller.obscureConfirmPass.value
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
+                          color: AppColors.iconColor,
+                          size: 20,
+                        ),
+                      ),
                     ),
                     validator: (v) => v != controller.passwordCTRL.text
                         ? 'Passwords do not match'

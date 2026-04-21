@@ -51,30 +51,197 @@ class FindingScoutsPage extends GetView<FindingScoutsController> {
             ),
             const SizedBox(height: 28),
 
-            // ── Scouts notified counter ────────────────────────────────────
-            Center(
-              child: Obx(
-                () => Text(
-                  '${controller.scoutsNotified.value} SCOUTS NOTIFIED',
-                  style: const TextStyle(
-                    color: Color(0xFF22C55E),
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 1.0,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // ── Scout cards ────────────────────────────────────────────────
+            // ── Bottom section — toggles between scout list and fallback ──
             Expanded(
-              child: Obx(
-                () => _AnimatedScoutList(scouts: controller.scouts.toList()),
-              ),
+              child: Obx(() {
+                final showFallback = controller.showNoScoutsFallback.value;
+                return AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 500),
+                  switchInCurve: Curves.easeOutCubic,
+                  switchOutCurve: Curves.easeInCubic,
+                  transitionBuilder: (child, animation) => FadeTransition(
+                    opacity: animation,
+                    child: SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(0, 0.08),
+                        end: Offset.zero,
+                      ).animate(animation),
+                      child: child,
+                    ),
+                  ),
+                  child: showFallback
+                      ? _NoScoutsFallback(
+                          key: const ValueKey('fallback'),
+                          countdown: controller.redirectCountdown.value,
+                        )
+                      : _ScoutsSection(
+                          key: const ValueKey('scouts'),
+                          controller: controller,
+                        ),
+                );
+              }),
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ─── Scouts section (counter + animated list) ─────────────────────────────────
+
+class _ScoutsSection extends StatelessWidget {
+  final FindingScoutsController controller;
+  const _ScoutsSection({super.key, required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        // Scouts notified counter
+        Obx(
+          () => Text(
+            '${controller.scoutsNotified.value} SCOUTS NOTIFIED',
+            style: const TextStyle(
+              color: Color(0xFF22C55E),
+              fontSize: 15,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.0,
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
+        Expanded(
+          child: Obx(
+            () => _AnimatedScoutList(scouts: controller.scouts.toList()),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ─── No-scouts fallback UI ────────────────────────────────────────────────────
+
+class _NoScoutsFallback extends StatefulWidget {
+  final int countdown;
+  const _NoScoutsFallback({super.key, required this.countdown});
+
+  @override
+  State<_NoScoutsFallback> createState() => _NoScoutsFallbackState();
+}
+
+class _NoScoutsFallbackState extends State<_NoScoutsFallback>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _pulseCtrl;
+  late final Animation<double> _pulseAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseCtrl = AnimationController(
+      duration: const Duration(milliseconds: 1400),
+      vsync: this,
+    )..repeat(reverse: true);
+    _pulseAnim = Tween<double>(
+      begin: 0.92,
+      end: 1.08,
+    ).animate(CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut));
+  }
+
+  @override
+  void dispose() {
+    _pulseCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 32),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Pulsing broadcast icon
+          ScaleTransition(
+            scale: _pulseAnim,
+            child: Container(
+              width: 88,
+              height: 88,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withAlpha(20),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: AppColors.primary.withAlpha(80),
+                  width: 1.5,
+                ),
+              ),
+              child: const Icon(
+                Icons.sensors,
+                color: AppColors.primary,
+                size: 40,
+              ),
+            ),
+          ),
+          const SizedBox(height: 28),
+
+          // Heading
+          const Text(
+            'No scouts nearby right now',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // Subtitle
+          const Text(
+            'Your mission has been posted and will be accepted by the next available scout.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 14,
+              height: 1.55,
+            ),
+          ),
+          const SizedBox(height: 36),
+
+          // Countdown chip
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(50),
+              border: Border.all(
+                color: AppColors.divider.withAlpha(60),
+                width: 0.5,
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.home_outlined,
+                  color: AppColors.textSecondary,
+                  size: 16,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Returning to home in ${widget.countdown}s…',
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
