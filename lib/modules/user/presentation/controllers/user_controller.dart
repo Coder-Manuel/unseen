@@ -4,7 +4,6 @@ import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:unseen/core/entities/user.entity.dart';
 import 'package:unseen/core/services/notification_service/notification_service.dart';
-import 'package:unseen/core/utils/toast.dart';
 import 'package:unseen/modules/user/domain/usecases/get_user_info.usecase.dart';
 import 'package:unseen/modules/user/domain/usecases/update_fcm_token.usecase.dart';
 
@@ -38,7 +37,7 @@ class UserController extends GetxController {
   Future<void> getUserDetails() async {
     final response = await getUserInfoUsecase();
 
-    response.fold((ex) => Toast.error(ex.message), (data) {
+    response.fold((_) => null, (data) {
       currentUser.value = data;
       _syncFcmToken();
     });
